@@ -1,4 +1,5 @@
 class StoriesController < ApplicationController
+  before_action :authenticate_user!, only: [:new, :create]
   def index
     @stories = Story.all
   end

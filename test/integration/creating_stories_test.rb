@@ -6,6 +6,7 @@ class CreatingStoriesTest < ActionDispatch::IntegrationTest
   end
 
   test "creating new stories" do
+    sign_in_user
     visit root_path
     click_link "Add a new story"
     fill_in 'Title', with: "My Title"
@@ -18,6 +19,7 @@ class CreatingStoriesTest < ActionDispatch::IntegrationTest
   end
 
   test "shows errors if validation fails" do 
+    sign_in_user
     visit root_path
     click_link "Add a new story"
     click_button 'Create Story'
