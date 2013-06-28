@@ -18,6 +18,19 @@ class StoriesControllerTest < ActionController::TestCase
 
     assert_equal 1, assigns(:story).upvotes
   end
+
+  test "associates story to logged in user" do 
+    john = users :john
+    sign_in john
+    post :create, story: {
+      title: "My story", 
+      link: "http://example.com",
+      category: "example"
+    }
+
+    assert_equal john, assigns(:story).user
+  end
+
   test "redirects to home page on story creation attempt if not logged in" do
     get :new
     assert_redirected_to new_user_session_path
@@ -31,5 +44,4 @@ class StoriesControllerTest < ActionController::TestCase
     get :new
     assert_template :new
   end
-
 end

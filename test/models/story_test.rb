@@ -1,18 +1,18 @@
 require 'test_helper'
 
 class StoryTest < ActiveSupport::TestCase
-  test "invalid if expected field are not provided" do
-    story = Story.new title: 'My title', 
-      link: 'http://example.com', 
-      category: 'example',
-      upvotes: 1
+  fixtures :stories, :users, :comments
+  setup do
+    @story =  stories :breaking_news
+  end
 
-    assert story.valid?, "Story should be valid"
+  test "invalid if expected field are not provided" do
+    assert @story.valid?, "Story should be valid"
     [:title, :link, :category, :upvotes].each do |property|
-      original_value = story[property]
-      story[property] = nil
-      assert story.invalid?, "expected #{property} to be required"
-      story[property] = original_value 
+      original_value = @story[property]
+      @story[property] = nil
+      assert @story.invalid?, "expected #{property} to be required"
+      @story[property] = original_value 
     end
   end
 
@@ -22,14 +22,14 @@ class StoryTest < ActiveSupport::TestCase
       category: 'example',
       upvotes: 4
 
-    unpopular = Story.create title: 'My title', 
+    Story.create title: 'Unpopular story', 
       link: 'http://example.com', 
       category: 'example',
       upvotes: 0
 
     result = Story.popular
     assert_equal 1, result.length
-    assert_equal "My popular story", result.first.title
+    assert_equal popular, result.first
   end
 
   test "recent scope returns recent stories" do
@@ -38,17 +38,17 @@ class StoryTest < ActiveSupport::TestCase
       category: 'example',
       upvotes: 1,
       created_at: Date.today
-     
 
-    old_story = Story.create title: 'My title', 
+
+    Story.create title: 'Old story', 
       link: 'http://example.com', 
       category: 'example',
       upvotes: 1,
       created_at: 10.days.ago
 
-    result = Story.recent
+    results = Story.recent
 
-    assert_equal 1, result.length
+    assert results.include?(new_story)
   end
 
   test "search functionality" do
@@ -64,5 +64,23 @@ class StoryTest < ActiveSupport::TestCase
 
     assert_equal 1, Story.search_for("title").length
     assert_equal 1, Story.search_for("example").length
+  end
+
+  test "is associated to a user" do
+    john = users :john
+    @story.user = john
+    assert_equal john.id, @story.user_id
+  end
+
+  test "it can have comments" do
+    assert @story.comments.empty?
+  end
+
+  test "tracks its commenters" do
+    john = users :john
+    comment = comments :good
+    john.comments << comment
+    @story.comments << comment
+    assert @story.commenters.include? john
   end
 end

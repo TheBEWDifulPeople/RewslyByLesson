@@ -33,3 +33,11 @@ def sign_in_user
   click_button "Sign in"
 end
 
+def create_story(title)
+  visit root_path
+  click_link "Add a new story"
+  fill_in 'Title', with: title
+  fill_in 'Link', with: "http://example.com"
+  fill_in 'Category', with: "example"
+  click_button 'Create Story'
+end
